@@ -1,5 +1,4 @@
 # Playing with A2A
----
 The initial idea with this here repository was to create a setup where I can play arround with A2A and MCP.  
 
 There is a docker-compose file that will start the weather-agent and a ollama container.  

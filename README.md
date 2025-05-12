@@ -41,8 +41,13 @@ uv run . --agent http://127.0.0.1:8001
 ```
 
 
+## The weather agent
+The tool that is added for the weather agent - uses a name from a city and try to get the weather information for that city. 
+E.g. Copenhagen Denmark or London UK.
+
+
 To-do's: 
-- [ ] Make the last part of the weather-agent - MCP tool that can handle the weather part of things
+- [x] Make the last part of the weather-agent - Tool that can handle the weather part of things
 - [ ] Make a MCP Server for MySQL that can be used to store the output from the weather-agent
 - [ ] Write better documentation
 - [ ] Make a client that can be used instead of the A2A Google CLI

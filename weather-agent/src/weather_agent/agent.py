@@ -1,6 +1,7 @@
 from langchain_ollama import ChatOllama
 from langgraph.prebuilt import create_react_agent
 from langgraph.graph.graph import CompiledGraph
+from weather_agent.weather_mcp_server import get_weather
 
 def create_ollama_agent(ollama_base_url: str, ollama_model: str):
   ollama_chat_llm = ChatOllama(
@@ -8,7 +9,7 @@ def create_ollama_agent(ollama_base_url: str, ollama_model: str):
     model=ollama_model,
     temperature=0.2
   )
-  agent = create_react_agent(ollama_chat_llm, tools=[])
+  agent = create_react_agent(ollama_chat_llm, tools=[get_weather])
   return agent
 
 async def run_ollama(ollama_agent: CompiledGraph, prompt: str):

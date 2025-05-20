@@ -26,20 +26,31 @@ detached mode:
 docker-compose up -d
 ```
 
-When the agent and the ollama has started we can use the cli from the A2A Google CLI to access the Agent and try it out. 
-
-git clone:
-```
-git clone git@github.com:google/A2A.git
-
-```
+When the agent and the ollama has started we can use the client to access the Agent and try it out.
 
 start the cli: 
 ```
-cd A2A/samples/python/hosts/cli
-uv run . --agent http://127.0.0.1:8001
-```
+cd client
+uv run client --agent http://localhost:8001
+======= Agent Card ========
+{"name":"Weather Agent","description":"This agent provide a weather forcast for a given location","url":"http://0.0.0.0:8001/","version":"0.1.0","capabilities":{"streaming":false,"pushNotifications":false,"stateTransitionHistory":false},"defaultInputModes":["text"],"defaultOutputModes":["text"],"skills":[{"id":"weather-agent-skill","name":"Weather Tool","description":"Return weather forcast for the requested location","tags":["weater","weather-forcast"],"examples":["The weather in Copenhagen is partly cloudy with a high of 10 and a low of 5 degreese."],"inputModes":["text"],"outputModes":["text"]}]}
+=========  starting a new task ======== 
 
+What do you want to send to the agent? (:q or quit to exit): hello
+Select a file path to attach (or press enter to finish adding files): 
+
+{"jsonrpc":"2.0","id":"0bbf3665918c4c7aa3ec8f08206c54a3","result":{"id":"7e95242d806b425b86522dfd3535baca","sessionId":"87e853618b724066b2103f19a8fdb92f","status":{"state":"completed","message":{"role":"agent","parts":[{"type":"text","text":"Hello! How can I assist you today?"}]},"timestamp":"2025-05-20T12:47:13.916935"},"artifacts":[{"parts":[{"type":"text","text":"Hello! How can I assist you today?"}],"index":0}],"history":[{"role":"user","parts":[{"type":"text","text":"hello"}]}]}}
+=========  starting a new task ======== 
+
+What do you want to send to the agent? (:q or quit to exit): get weather from SF USA
+Select a file path to attach (or press enter to finish adding files): 
+
+{"jsonrpc":"2.0","id":"ddeb8de4d5b9423eb9a6c05b152cf8ae","result":{"id":"bde8fe9b35874a2191f274431a2a9e69","sessionId":"87e853618b724066b2103f19a8fdb92f","status":{"state":"completed","message":{"role":"agent","parts":[{"type":"text","text":"The weather forecast for San Francisco, USA from May 20 to May 26 is as follows:\n\n- On May 20, the maximum temperature will be 20.8°C with no precipitation expected.\n- On May 21, the maximum temperature will rise to 22.2°C with still no precipitation.\n- The temperature drops slightly on May 22 to a maximum of 16.7°C with no rainfall predicted.\n- May 23 sees another drop in temperature to a maximum of 15.8°C, again with no expected precipitation.\n- Temperatures rise back up to 20.4°C on May 24 with no rain forecasted.\n- The temperature falls slightly on May 25 and 26 to 16.7°C each day with no precipitation expected."}]},"timestamp":"2025-05-20T12:48:45.139293"},"artifacts":[{"parts":[{"type":"text","text":"The weather forecast for San Francisco, USA from May 20 to May 26 is as follows:\n\n- On May 20, the maximum temperature will be 20.8°C with no precipitation expected.\n- On May 21, the maximum temperature will rise to 22.2°C with still no precipitation.\n- The temperature drops slightly on May 22 to a maximum of 16.7°C with no rainfall predicted.\n- May 23 sees another drop in temperature to a maximum of 15.8°C, again with no expected precipitation.\n- Temperatures rise back up to 20.4°C on May 24 with no rain forecasted.\n- The temperature falls slightly on May 25 and 26 to 16.7°C each day with no precipitation expected."}],"index":0}],"history":[{"role":"user","parts":[{"type":"text","text":"get weather from SF USA"}]}]}}
+=========  starting a new task ======== 
+
+What do you want to send to the agent? (:q or quit to exit):
+
+```
 
 ## The weather agent
 The tool that is added for the weather agent - uses a name from a city and try to get the weather information for that city. 

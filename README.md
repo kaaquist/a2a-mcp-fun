@@ -28,10 +28,10 @@ docker-compose up -d
 
 When the agent and the ollama has started we can use the client to access the Agent and try it out.
 
-start the cli: 
+start the cli - a2a: 
 ```
 cd client
-uv run client --agent http://localhost:8001
+uv run src/client/__init__.py --agent=http://localhost:8001
 ======= Agent Card ========
 {"name":"Weather Agent","description":"This agent provide a weather forcast for a given location","url":"http://0.0.0.0:8001/","version":"0.1.0","capabilities":{"streaming":false,"pushNotifications":false,"stateTransitionHistory":false},"defaultInputModes":["text"],"defaultOutputModes":["text"],"skills":[{"id":"weather-agent-skill","name":"Weather Tool","description":"Return weather forcast for the requested location","tags":["weater","weather-forcast"],"examples":["The weather in Copenhagen is partly cloudy with a high of 10 and a low of 5 degreese."],"inputModes":["text"],"outputModes":["text"]}]}
 =========  starting a new task ======== 
@@ -51,6 +51,131 @@ Select a file path to attach (or press enter to finish adding files):
 What do you want to send to the agent? (:q or quit to exit):
 
 ```
+
+Start the supervisor client: 
+```
+cd client
+uv run --env-file .env client
+
+Final Result:
+None said:
+
+ Get weather for Paris France and is 3=2? 
+
+ **************************************************
+supervisor said:
+
+  
+
+ **************************************************
+transfer_to_weather_agent said:
+
+ Successfully transferred to weather_agent 
+
+ **************************************************
+weather_agent said:
+
+  
+
+ **************************************************
+get_weather said:
+
+ {"jsonrpc":"2.0","id":"620ee11dcede4f4ebfffaeec1042c269","result":{"id":"1","sessionId":"b98131bcab5444118f69d646037f05cc","status":{"state":"completed","message":{"role":"agent","parts":[{"type":"text","text":"The current weather in Paris, France is: \n\nTemperature: 15°C (59°F)  \nConditions: Partly cloudy  \n\nPlease note that the weather can change rapidly, so it's always a good idea to check closer to when you need the information."}]},"timestamp":"2025-05-27T13:01:01.774028"},"artifacts":[{"parts":[{"type":"text","text":"The current weather in Paris, France is: \n\nTemperature: 15°C (59°F)  \nConditions: Partly cloudy  \n\nPlease note that the weather can change rapidly, so it's always a good idea to check closer to when you need the information."}],"index":0}],"history":[{"role":"user","parts":[{"type":"text","text":"Paris, France"}]}]}} 
+
+ **************************************************
+weather_agent said:
+
+  
+
+ **************************************************
+get_weather said:
+
+ {"jsonrpc":"2.0","id":"49024afc5a4840c8ab5e6fc4b3019f4b","result":{"id":"1","sessionId":"b98131bcab5444118f69d646037f05cc","status":{"state":"completed","message":{"role":"agent","parts":[{"type":"text","text":"The weather forecast for Paris, France from May 27 to June 2 is as follows:\n\n- On May 27, the maximum temperature will be 20.3°C with no precipitation.\n- On May 28, expect a high of 22.5°C and light rainfall (1.1 mm).\n- May 29 will see a high of 24.1°C with no precipitation.\n- The temperature will rise to 29.5°C on May 30, still with no rain.\n- On May 31, it will be the warmest day with a high of 29.8°C and moderate rainfall (4.5 mm).\n- June 1 will cool down to 21.8°C with no precipitation.\n- The forecast for June 2 is a high of 21.3°C and no rain."}]},"timestamp":"2025-05-27T13:02:19.714784"},"artifacts":[{"parts":[{"type":"text","text":"The weather forecast for Paris, France from May 27 to June 2 is as follows:\n\n- On May 27, the maximum temperature will be 20.3°C with no precipitation.\n- On May 28, expect a high of 22.5°C and light rainfall (1.1 mm).\n- May 29 will see a high of 24.1°C with no precipitation.\n- The temperature will rise to 29.5°C on May 30, still with no rain.\n- On May 31, it will be the warmest day with a high of 29.8°C and moderate rainfall (4.5 mm).\n- June 1 will cool down to 21.8°C with no precipitation.\n- The forecast for June 2 is a high of 21.3°C and no rain."}],"index":0}],"history":[{"role":"user","parts":[{"type":"text","text":"Paris, France"}]},{"role":"user","parts":[{"type":"text","text":"Paris, France"}]}]}} 
+
+ **************************************************
+weather_agent said:
+
+ The weather forecast for Paris, France from May 27 to June 2 is as follows:
+
+- On May 27, the maximum temperature will be 20.3°C with no precipitation.
+- On May 28, expect a high of 22.5°C and light rainfall (1.1 mm).
+- May 29 will see a high of 24.1°C with no precipitation.
+- The temperature will rise to 29.5°C on May 30, still with no rain.
+- On May 31, it will be the warmest day with a high of 29.8°C and moderate rainfall (4.5 mm).
+- June 1 will cool down to 21.8°C with no precipitation.
+- The forecast for June 2 is a high of 21.3°C and no rain. 
+
+ **************************************************
+weather_agent said:
+
+ Transferring back to supervisor 
+
+ **************************************************
+transfer_back_to_supervisor said:
+
+ Successfully transferred back to supervisor 
+
+ **************************************************
+supervisor said:
+
+  
+
+ **************************************************
+transfer_to_math_agent said:
+
+ Successfully transferred to math_agent 
+
+ **************************************************
+math_agent said:
+
+  
+
+ **************************************************
+calculator said:
+
+ Error evaluating expression: invalid syntax (<string>, line 1) 
+
+ **************************************************
+math_agent said:
+
+  
+
+ **************************************************
+calculator said:
+
+ False 
+
+ **************************************************
+math_agent said:
+
+ False 
+
+ **************************************************
+math_agent said:
+
+ Transferring back to supervisor 
+
+ **************************************************
+transfer_back_to_supervisor said:
+
+ Successfully transferred back to supervisor 
+
+ **************************************************
+supervisor said:
+
+ The current weather in Paris, France is partly cloudy with a temperature of 15°C (59°F). Regarding the equation, 3 is not equal to 2, so the statement is false. 
+
+ **************************************************
+ ```
+
+| ![Running Client w supervisor](images/running_supervisor.png "output from servers") |
+|:-----------------------------------------------------------------------------------:|
+|                            Figure 1 - Running Supervisor                            |
+
+| ![Running Client w supervisor done](images/running_supervisor_after.png "output from servers") |
+|:----------------------------------------------------------------------------------------------:|
+|                              Figure 1 - Running Supervisor After                               |
+
 
 ## The weather agent
 The tool that is added for the weather agent - uses a name from a city and try to get the weather information for that city. 

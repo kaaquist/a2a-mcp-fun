@@ -1,5 +1,4 @@
 import asyncio
-import google_a2a
 
 from typing import AsyncIterable, Union
 from google_a2a.common.server.task_manager import InMemoryTaskManager
@@ -30,7 +29,7 @@ class WeatherAgentTaskManager(InMemoryTaskManager):
             self.ollama_agent = None
 
     async def _stream_3_messages(self, request: SendTaskStreamingRequest):
-        task_id = request.params.id
+        """Taken from the tutorial created for initial A2A work"""
         received_text = request.params.message.parts[0].text
 
         text_messages = ["one", "two", "three"]
@@ -42,7 +41,6 @@ class WeatherAgentTaskManager(InMemoryTaskManager):
                 }
             ]
             message = Message(role="agent", parts=parts)
-            is_last = text == text_messages[-1]
             task_state = TaskState.WORKING
             task_status = TaskStatus(state=task_state, message=message)
             task_update_event = TaskStatusUpdateEvent(

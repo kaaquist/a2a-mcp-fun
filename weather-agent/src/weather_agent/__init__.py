@@ -1,8 +1,6 @@
 import logging
 import click
-import google_a2a
 
-from dotenv import load_dotenv
 from google_a2a.common.types import AgentSkill, AgentCapabilities, AgentCard
 from google_a2a.common.server import A2AServer
 from weather_agent.task_manager import WeatherAgentTaskManager

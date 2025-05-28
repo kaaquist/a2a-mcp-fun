@@ -1,16 +1,8 @@
-import asyncio
-import base64
-import os
-import urllib
 import logging
 
 from uuid import uuid4
 
-import asyncclick as click
-
 from google_a2a.common.client import A2ACardResolver, A2AClient
-from google_a2a.common.types import TaskState
-from google_a2a.common.utils.push_notification_auth import PushNotificationReceiverAuth
 from mcp.server.fastmcp import FastMCP
 
 
@@ -71,4 +63,5 @@ if __name__ == "__main__":
     try:
         mcp.run(transport="sse")
     except KeyboardInterrupt as kie:
+        logger.debug(f"The server is stopped: {kie}")
         pass

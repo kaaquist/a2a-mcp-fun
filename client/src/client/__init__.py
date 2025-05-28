@@ -1,7 +1,6 @@
 import asyncio
 import base64
 import os
-import urllib
 
 from uuid import uuid4
 
@@ -9,12 +8,10 @@ import asyncclick as click
 
 from google_a2a.common.client import A2ACardResolver, A2AClient
 from google_a2a.common.types import TaskState
-from google_a2a.common.utils.push_notification_auth import PushNotificationReceiverAuth
 
 """
 This here is a modified version of the cli.py file that is found here: https://github.com/google/A2A/tree/main/samples/python/hosts/cli
 Everything has been cut from the original client to get a "barebone" minimal client.
- 
 """
 
 
@@ -121,7 +118,7 @@ async def completeTask(
         task_result = await client.send_task(payload)
         print(f"\n{task_result.model_dump_json(exclude_none=True)}")
 
-    ## if the result is that more input is required, loop again.
+    # if the result is that more input is required, loop again.
     state = TaskState(task_result.result.status.state)
     if state.name == TaskState.INPUT_REQUIRED.name:
         return await completeTask(
@@ -130,7 +127,7 @@ async def completeTask(
             task_id,
             session_id,
         )
-    ## task is complete
+    # task is complete
     return True
 
 

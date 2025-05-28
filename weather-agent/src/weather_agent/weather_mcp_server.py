@@ -22,7 +22,9 @@ def get_coordinates(city_name: str):
         ValueError: If city_name is empty or invalid.
     """
     if not city_name or not isinstance(city_name, str):
-        logger.error("Please provide a city name and country. E.g. Copenhagen, DK or London, UK")
+        logger.error(
+            "Please provide a city name and country. E.g. Copenhagen, DK or London, UK"
+        )
         raise ValueError("City name must be a non-empty string")
 
     try:
@@ -35,6 +37,7 @@ def get_coordinates(city_name: str):
     except (GeocoderServiceError, GeocoderTimedOut) as e:
         logger.error(f"Geocoding error: {e}")
         return None
+
 
 def get_weather_daily(city_name, daily_params=None, timezone="auto"):
     """
@@ -49,7 +52,7 @@ def get_weather_daily(city_name, daily_params=None, timezone="auto"):
         dict: Weather data from Open-Meteo API if successful, None otherwise.
     """
     # Default parameters if none provided
-    daily_params = daily_params or ['temperature_2m_max', 'precipitation_sum']
+    daily_params = daily_params or ["temperature_2m_max", "precipitation_sum"]
 
     # Get coordinates
     coordinates = get_coordinates(city_name)
@@ -60,20 +63,23 @@ def get_weather_daily(city_name, daily_params=None, timezone="auto"):
 
     # Build API request parameters
     params = {
-        'latitude': latitude,
-        'longitude': longitude,
-        'timezone': timezone,
-        'daily': ','.join(daily_params)
+        "latitude": latitude,
+        "longitude": longitude,
+        "timezone": timezone,
+        "daily": ",".join(daily_params),
     }
 
     try:
         with httpx.Client() as client:
-            response = client.get("https://api.open-meteo.com/v1/forecast", params=params, timeout=None)
+            response = client.get(
+                "https://api.open-meteo.com/v1/forecast", params=params, timeout=None
+            )
             response.raise_for_status()  # Raise an exception for bad status codes
             return response.json()
     except httpx.RequestError as e:
         logger.error(f"Error fetching weather data: {e}")
         return None
+
 
 @tool()
 def get_weather(city_name):
@@ -83,7 +89,9 @@ def get_weather(city_name):
     Args:
         city_name (str): Name of the city (e.g., 'London, UK').
     """
-    weather_data = get_weather_daily(city_name, ['temperature_2m_max', 'precipitation_sum'], "auto")
+    weather_data = get_weather_daily(
+        city_name, ["temperature_2m_max", "precipitation_sum"], "auto"
+    )
     if not weather_data:
         logger.warning(f"No weather data available for {city_name}")
         return None
@@ -92,28 +100,33 @@ def get_weather(city_name):
     logger.info(f"Latitude: {weather_data.get('latitude')}")
     logger.info(f"Longitude: {weather_data.get('longitude')}")
     logger.info(f"Timezone: {weather_data.get('timezone')}")
-    json_weather_data = {"city_name": city_name,
-                         "latitude": weather_data.get('latitude'),
-                         "longitude": weather_data.get('longitude'),
-                         "timezone": weather_data.get('timezone')}
+    json_weather_data = {
+        "city_name": city_name,
+        "latitude": weather_data.get("latitude"),
+        "longitude": weather_data.get("longitude"),
+        "timezone": weather_data.get("timezone"),
+    }
 
     # Display daily data if available
     daily_weather = []
-    if 'daily' in weather_data:
+    if "daily" in weather_data:
         json_daily_weather = {}
         logger.info("\nDaily Forecast:")
-        for i, time in enumerate(weather_data['daily']['time']):
+        for i, time in enumerate(weather_data["daily"]["time"]):
             json_daily_weather[time] = {}
             logger.info(f"Date: {time}")
-            for param in weather_data['daily']:
-                if param != 'time':
-                    unit = weather_data.get('daily_units', {}).get(param, '')
+            for param in weather_data["daily"]:
+                if param != "time":
+                    unit = weather_data.get("daily_units", {}).get(param, "")
                     logger.info(f"{param}: {weather_data['daily'][param][i]} {unit}")
-                    json_daily_weather[time][param] = f"{weather_data['daily'][param][i]} {unit}"
+                    json_daily_weather[time][
+                        param
+                    ] = f"{weather_data['daily'][param][i]} {unit}"
             logger.info(f"{'-' * 60}")
         daily_weather.append(json_daily_weather)
-    json_weather_data['daily_forcast'] = daily_weather
+    json_weather_data["daily_forcast"] = daily_weather
     return json_weather_data
+
 
 # Example usage
 if __name__ == "__main__":

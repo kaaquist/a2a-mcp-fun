@@ -1,4 +1,10 @@
 # Playing with A2A
+> How do I get to use an A2A Agent in a LangGraph Supervisor setup?
+
+| ![Supervisor w A2A Agent](images/a2a-mcp-connected-tool.png "what is there today") |
+|:----------------------------------------------------------------------------------:|
+|                       Figure 1 - Diagram of today's approach                        |
+
 The initial idea with this here repository was to create a setup where I can play arround with A2A and MCP.  
 
 There is a docker-compose file that will start the weather-agent and a ollama container.  

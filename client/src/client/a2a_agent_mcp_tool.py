@@ -71,4 +71,7 @@ async def get_weather(location_prompt: str, transaction_id: str) -> str:
 
 
 if __name__ == '__main__':
-    mcp.run(transport="sse")
+    try:
+        mcp.run(transport="sse")
+    except KeyboardInterrupt as kie:
+        pass

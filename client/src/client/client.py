@@ -57,22 +57,19 @@ async def create_multi_agent_workflow():
             "- After you're done with your tasks,  respond to the supervisor directly\n"
             "- Respond ONLY with the results of your work, do NOT include ANY other text."
         ),
-        name="weather_agent"
+        name="weather_agent",
     )
-
 
     # Create a LangChain agent for another role (e.g., math agent)
     math_agent = create_react_agent(
         model=ollama_chat_llm,
         tools=[calculator],
-        prompt=
-            "You are a math agent.\n\n"
-            "INSTRUCTIONS:\n"
-            "- Assist ONLY with math-related tasks\n"
-            "- After you're done with your tasks, respond to the supervisor directly\n"
-            "- Respond ONLY with the results of your work, do NOT include ANY other text."
-        ,
-        name="math_agent"
+        prompt="You are a math agent.\n\n"
+        "INSTRUCTIONS:\n"
+        "- Assist ONLY with math-related tasks\n"
+        "- After you're done with your tasks, respond to the supervisor directly\n"
+        "- Respond ONLY with the results of your work, do NOT include ANY other text.",
+        name="math_agent",
     )
 
     # Create the supervisor
@@ -86,31 +83,33 @@ async def create_multi_agent_workflow():
             "Assign work to one agent at a time, do not call agents in parallel.\n"
             "Do not do any work yourself."
         ),
-        #add_handoff_back_messages=True,
+        # add_handoff_back_messages=True,
         output_mode="full_history",
     )
     from langgraph.checkpoint.memory import InMemorySaver
     from langgraph.store.memory import InMemoryStore
+
     checkpointer = InMemorySaver()
     store = InMemoryStore()
-    return supervisor.compile(
-        checkpointer=checkpointer,
-        store=store
-    )
-
+    return supervisor.compile(checkpointer=checkpointer, store=store)
 
 
 async def run():
     import uuid
-    
+
     # Create and compile the workflow
     graph = await create_multi_agent_workflow()
 
     # Run the graph with a sample task
     config = {"configurable": {"thread_id": str(uuid.uuid4())}}
-    result = await graph.ainvoke({
-        "messages": [HumanMessage(content="Get weather for Paris France and is 3=2?")]
-    }, config)
+    result = await graph.ainvoke(
+        {
+            "messages": [
+                HumanMessage(content="Get weather for Paris France and is 3=2?")
+            ]
+        },
+        config,
+    )
 
     # Print the final result
     print("\nFinal Result:")
@@ -121,6 +120,7 @@ async def run():
 def main():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run())
+
 
 # Example usage
 if __name__ == "__main__":

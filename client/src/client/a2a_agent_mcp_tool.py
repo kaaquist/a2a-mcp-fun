@@ -31,7 +31,7 @@ async def get_weather(location_prompt: str, transaction_id: str) -> str:
     card_resolver = A2ACardResolver("http://localhost:8001")
     card = card_resolver.get_agent_card()
 
-    logger.debug('======= Agent Card ========')
+    logger.debug("======= Agent Card ========")
     logger.debug(card.model_dump_json(exclude_none=True))
 
     client = A2AClient(agent_card=card)
@@ -39,38 +39,35 @@ async def get_weather(location_prompt: str, transaction_id: str) -> str:
 
     streaming = card.capabilities.streaming
     message = {
-        'role': 'user',
-        'parts': [
+        "role": "user",
+        "parts": [
             {
-                'type': 'text',
-                'text': location_prompt,
+                "type": "text",
+                "text": location_prompt,
             }
         ],
     }
 
-
     payload = {
-        'id': transaction_id,
-        'sessionId': session_id,
-        'acceptedOutputModes': ['text'],
-        'message': message,
+        "id": transaction_id,
+        "sessionId": session_id,
+        "acceptedOutputModes": ["text"],
+        "message": message,
     }
 
     task_result = None
     if streaming:
         response_stream = client.send_task_streaming(payload)
         async for result in response_stream:
-            logger.debug(
-                f'stream event => {result.model_dump_json(exclude_none=True)}'
-            )
-        task_result = await client.get_task({'id': transaction_id})
+            logger.debug(f"stream event => {result.model_dump_json(exclude_none=True)}")
+        task_result = await client.get_task({"id": transaction_id})
     else:
         task_result = await client.send_task(payload)
-        logger.debug(f'\n{task_result.model_dump_json(exclude_none=True)}')
+        logger.debug(f"\n{task_result.model_dump_json(exclude_none=True)}")
     return task_result.model_dump_json(exclude_none=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         mcp.run(transport="sse")
     except KeyboardInterrupt as kie:

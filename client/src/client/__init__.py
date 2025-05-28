@@ -19,16 +19,13 @@ Everything has been cut from the original client to get a "barebone" minimal cli
 
 
 @click.command()
-@click.option('--agent', default='http://localhost:10000')
-@click.option('--history', default=False)
-async def cli(
-    agent,
-    history
-):
+@click.option("--agent", default="http://localhost:10000")
+@click.option("--history", default=False)
+async def cli(agent, history):
     card_resolver = A2ACardResolver(agent)
     card = card_resolver.get_agent_card()
 
-    print('======= Agent Card ========')
+    print("======= Agent Card ========")
     print(card.model_dump_json(exclude_none=True))
 
     client = A2AClient(agent_card=card)
@@ -39,7 +36,7 @@ async def cli(
 
     while continue_loop:
         task_id = uuid4().hex
-        print('=========  starting a new task ======== ')
+        print("=========  starting a new task ======== ")
         continue_loop = await completeTask(
             client,
             streaming,
@@ -48,15 +45,9 @@ async def cli(
         )
 
         if history and continue_loop:
-            print('========= history ======== ')
-            task_response = await client.get_task(
-                {'id': task_id, 'historyLength': 10}
-            )
-            print(
-                task_response.model_dump_json(
-                    include={'result': {'history': True}}
-                )
-            )
+            print("========= history ======== ")
+            task_response = await client.get_task({"id": task_id, "historyLength": 10})
+            print(task_response.model_dump_json(include={"result": {"history": True}}))
 
 
 async def completeTask(
@@ -66,17 +57,17 @@ async def completeTask(
     session_id,
 ):
     prompt = click.prompt(
-        '\nWhat do you want to send to the agent? (:q or quit to exit)'
+        "\nWhat do you want to send to the agent? (:q or quit to exit)"
     )
-    if prompt.strip() == ':q' or prompt.strip() == 'quit':
+    if prompt.strip() == ":q" or prompt.strip() == "quit":
         return False
 
     message = {
-        'role': 'user',
-        'parts': [
+        "role": "user",
+        "parts": [
             {
-                'type': 'text',
-                'text': prompt,
+                "type": "text",
+                "text": prompt,
             }
         ],
     }
@@ -84,53 +75,51 @@ async def completeTask(
     file_paths = []
     while True:
         file_path = click.prompt(
-            'Select a file path to attach (or press enter to finish adding files)',
-            default='',
+            "Select a file path to attach (or press enter to finish adding files)",
+            default="",
             show_default=False,
         )
-        if not file_path or file_path.strip() == '':
+        if not file_path or file_path.strip() == "":
             break
         file_paths.append(file_path.strip())
 
     for file_path in file_paths:
         try:
-            with open(file_path, 'rb') as f:
-                file_content = base64.b64encode(f.read()).decode('utf-8')
+            with open(file_path, "rb") as f:
+                file_content = base64.b64encode(f.read()).decode("utf-8")
                 file_name = os.path.basename(file_path)
 
-            message['parts'].append(
+            message["parts"].append(
                 {
-                    'type': 'file',
-                    'file': {
-                        'name': file_name,
-                        'bytes': file_content,
+                    "type": "file",
+                    "file": {
+                        "name": file_name,
+                        "bytes": file_content,
                     },
                 }
             )
-            print(f'Attached file: {file_name}')
+            print(f"Attached file: {file_name}")
         except FileNotFoundError:
-            print(f'Error: File not found at {file_path}. Skipping.')
+            print(f"Error: File not found at {file_path}. Skipping.")
         except Exception as e:
-            print(f'Error reading file {file_path}: {e}. Skipping.')
+            print(f"Error reading file {file_path}: {e}. Skipping.")
 
     payload = {
-        'id': task_id,
-        'sessionId': session_id,
-        'acceptedOutputModes': ['text'],
-        'message': message,
+        "id": task_id,
+        "sessionId": session_id,
+        "acceptedOutputModes": ["text"],
+        "message": message,
     }
 
     task_result = None
     if streaming:
         response_stream = client.send_task_streaming(payload)
         async for result in response_stream:
-            print(
-                f'stream event => {result.model_dump_json(exclude_none=True)}'
-            )
-        task_result = await client.get_task({'id': task_id})
+            print(f"stream event => {result.model_dump_json(exclude_none=True)}")
+        task_result = await client.get_task({"id": task_id})
     else:
         task_result = await client.send_task(payload)
-        print(f'\n{task_result.model_dump_json(exclude_none=True)}')
+        print(f"\n{task_result.model_dump_json(exclude_none=True)}")
 
     ## if the result is that more input is required, loop again.
     state = TaskState(task_result.result.status.state)
@@ -144,9 +133,10 @@ async def completeTask(
     ## task is complete
     return True
 
+
 def main():
     asyncio.run(cli())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(cli())

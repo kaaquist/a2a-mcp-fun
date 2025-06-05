@@ -1,4 +1,4 @@
-# Install UV 
+# Install UV
 FROM python:3.11-bullseye
 COPY --from=ghcr.io/astral-sh/uv:0.6.3 /uv /bin/uv
 
@@ -22,7 +22,12 @@ COPY README.md /opt/README.md
 RUN uv sync --frozen
 ENV PATH="/opt/.venv/bin:$PATH"
 
-EXPOSE 8001
+# We change the a2a client time out in the package. As of writing this is not an argument to the client - therefore this here hack
+RUN sed "s/timeout=30/timeout=120/" /opt/.venv/lib/python3.13/site-packages/google_a2a/common/client/client.py > client.py && \
+    rm -v /opt/.venv/lib/python3.13/site-packages/google_a2a/common/client/client.py && \
+    mv -v client.py /opt/.venv/lib/python3.13/site-packages/google_a2a/common/client/client.py
+
+EXPOSE 8090
 
 # These args is tailored to the docker-compose setup.
-CMD ["uv", "run", "weather-agent", "--ollama-host", "http://172.28.1.5:11434", "--ollama-model", "granite3.2:8b", "--host", "172.28.1.4"]
+CMD ["uv", "run", "weather_agent/a2a_agent_mcp_tool.py"]

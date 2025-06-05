@@ -9,6 +9,15 @@ services:
     networks:
       backend_net:
         ipv4_address: 172.28.1.4
+  weather-a2a-tool:
+    build:
+      context: weather-agent
+      dockerfile: ./dockerfile.a2a-agent-tool
+    ports:
+      - "8090:8090"
+    networks:
+      backend_net:
+        ipv4_address: 172.28.1.6
   # database-agent:
   #   build: 
   #     context: database-agent

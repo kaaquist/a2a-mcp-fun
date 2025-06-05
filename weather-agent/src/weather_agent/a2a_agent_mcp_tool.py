@@ -13,14 +13,15 @@ Then it has been transformed into a FastMCP tool - to make it compatible with La
 
 """
 
-mcp = FastMCP("weather", host="localhost", port=8090)
+mcp = FastMCP("weather", host="0.0.0.0", port=8090)
 logger = logging.getLogger(__name__)
 
 
 @mcp.tool()
 async def get_weather(location_prompt: str, transaction_id: str) -> str:
     """Get the city and the country and return the weather forcast for a week"""
-    card_resolver = A2ACardResolver("http://localhost:8001")
+    # Be aware that the url is hardcoded to point to the docker-compose network address
+    card_resolver = A2ACardResolver("http://172.28.1.4:8001")
     card = card_resolver.get_agent_card()
 
     logger.debug("======= Agent Card ========")

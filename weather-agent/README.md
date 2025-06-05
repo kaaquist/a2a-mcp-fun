@@ -1,6 +1,4 @@
 # Weather Agent
----
-
 
 ### The A2A wrapper to LangGraph
 Since I did not find a A2A Wrapper that would let me connect a A2A agent with a langgraph supervisor/agent flow.  

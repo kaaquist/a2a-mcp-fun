@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-client = "client.client:main"
+client = "client.client:run"
 
 [build-system]
 requires = ["hatchling"]

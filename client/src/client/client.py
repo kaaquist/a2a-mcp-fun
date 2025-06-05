@@ -1,13 +1,15 @@
-# from langchain_ollama import ChatOllama
+from langchain_ollama import ChatOllama
 from langgraph_supervisor import create_supervisor
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
+from langchain.schema.runnable.config import RunnableConfig
 
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 from langchain_mcp_adapters.client import MultiServerMCPClient
 import asyncio
 
+import chainlit as cl
 
 @tool
 def calculator(expression: str) -> str:
@@ -22,15 +24,17 @@ def calculator(expression: str) -> str:
 # Create a supervisor workflow with A2A client
 async def create_multi_agent_workflow():
     """Create a LangGraph workflow with a supervisor and an A2A client."""
-    # Have tried to use the same OLLAMA - LLM setup but it did fail - seems like the model does not support the multiagent
+    # Have tried to use the same OLLAMA - LLM setup, but it did fail - seems like the model does not support the multiagent
     # setup.
     # TODO: find a Ollama model that support the Supervisor Langchain usages of agents.
-    # ollama_chat_llm = ChatOllama(
+    ollama_chat_llm = ChatOpenAI(model="gpt-4o")
+    # ChatOllama(
     #     base_url="http://localhost:11435",
     #     model="granite3.2:8b",
     #     temperature=0.2
     # )
-    ollama_chat_llm = ChatOpenAI(model="gpt-4o")
+    
+    openai_chat_llm = ChatOpenAI(model="gpt-4o")
     client = MultiServerMCPClient(
         {
             "weather": {
@@ -69,7 +73,7 @@ async def create_multi_agent_workflow():
     # Create the supervisor
     supervisor = create_supervisor(
         agents=[math_agent, weather_agent],
-        model=ollama_chat_llm,
+        model=openai_chat_llm,
         prompt=(
             "You are a supervisor managing two agents:\n"
             "- a weather agent. Assign weather-related tasks to this agent\n"
@@ -77,7 +81,7 @@ async def create_multi_agent_workflow():
             "Assign work to one agent at a time, do not call agents in parallel.\n"
             "Do not do any work yourself."
         ),
-        # add_handoff_back_messages=True,
+        add_handoff_back_messages=True,
         output_mode="full_history",
     )
     from langgraph.checkpoint.memory import InMemorySaver
@@ -88,28 +92,23 @@ async def create_multi_agent_workflow():
     return supervisor.compile(checkpointer=checkpointer, store=store)
 
 
-async def run():
-    import uuid
-
-    # Create and compile the workflow
+@cl.on_message
+async def run(msg: cl.Message):
     graph = await create_multi_agent_workflow()
 
-    # Run the graph with a sample task
-    config = {"configurable": {"thread_id": str(uuid.uuid4())}}
-    result = await graph.ainvoke(
-        {
-            "messages": [
-                HumanMessage(content="Get weather for Paris France and is 3=2?")
-            ]
-        },
-        config,
-    )
+    config = {"configurable": {"thread_id": cl.context.session.id}}
+    cb = cl.LangchainCallbackHandler()
+    final_answer = cl.Message(content="")
+    #result = await graph.astream({"messages": [HumanMessage(content=msg.content)]}, stream_mode="messages", config=config)
+    async for msg, metadata in graph.astream({"messages": [HumanMessage(content=msg.content)]}, stream_mode="messages", config=RunnableConfig(callbacks=[cb], **config)):
+        if (
+                msg.content
+                and not isinstance(msg, HumanMessage)
+                # and metadata["langgraph_node"] == "final"
+        ):
+            await final_answer.stream_token(msg.content)
 
-    # Print the final result
-    print("\nFinal Result:")
-    for msg in result["messages"]:
-        print(f"{msg.name} said:\n\n {msg.content} \n\n {'*'*50}")
-
+    await final_answer.send()
 
 def main():
     loop = asyncio.get_event_loop()

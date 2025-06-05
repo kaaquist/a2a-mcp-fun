@@ -11,8 +11,14 @@ import asyncio
 
 import chainlit as cl
 
+
 @tool
-def calculator(expression: str) -> str:
+def multiply(a: float, b: float) -> float:
+    """Multiply two numbers."""
+    return a * b
+
+@tool
+def evaluate(expression: str) -> str:
     """Evaluates a mathematical expression and returns the result as a string."""
     try:
         result = eval(expression, {"__builtins__": {}}, {})
@@ -33,7 +39,7 @@ async def create_multi_agent_workflow():
     #     model="granite3.2:8b",
     #     temperature=0.2
     # )
-    
+
     openai_chat_llm = ChatOpenAI(model="gpt-4o")
     client = MultiServerMCPClient(
         {
@@ -61,7 +67,7 @@ async def create_multi_agent_workflow():
     # Create a LangChain agent for another role (e.g., math agent)
     math_agent = create_react_agent(
         model=ollama_chat_llm,
-        tools=[calculator],
+        tools=[evaluate, multiply],
         prompt="You are a math agent.\n\n"
         "INSTRUCTIONS:\n"
         "- Assist ONLY with math-related tasks\n"
@@ -81,8 +87,8 @@ async def create_multi_agent_workflow():
             "Assign work to one agent at a time, do not call agents in parallel.\n"
             "Do not do any work yourself."
         ),
-        add_handoff_back_messages=True,
-        output_mode="full_history",
+        add_handoff_back_messages=False,
+        output_mode="last_message",
     )
     from langgraph.checkpoint.memory import InMemorySaver
     from langgraph.store.memory import InMemoryStore
@@ -99,12 +105,11 @@ async def run(msg: cl.Message):
     config = {"configurable": {"thread_id": cl.context.session.id}}
     cb = cl.LangchainCallbackHandler()
     final_answer = cl.Message(content="")
-    #result = await graph.astream({"messages": [HumanMessage(content=msg.content)]}, stream_mode="messages", config=config)
     async for msg, metadata in graph.astream({"messages": [HumanMessage(content=msg.content)]}, stream_mode="messages", config=RunnableConfig(callbacks=[cb], **config)):
         if (
                 msg.content
                 and not isinstance(msg, HumanMessage)
-                # and metadata["langgraph_node"] == "final"
+                and metadata["langgraph_node"] == "agent"
         ):
             await final_answer.stream_token(msg.content)
 
